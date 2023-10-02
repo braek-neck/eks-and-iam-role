@@ -27,6 +27,10 @@ Based on the AWS best practices, the following network resources should be in pl
 * 3 NAT gateways (or 1 NAT gateway for non-prod environment)
 * Properly configured route tables
 
+AWS Load Balancer controller auto discovers network subnets for ALB or NLB by default. ALB requires at least two subnets across Availability Zones, NLB requires one subnet. The subnets must be tagged appropriately for the auto discovery to work. The controller chooses one subnet from each Availability Zone. In case of multiple tagged subnets in an Availability Zone, the controller will choose the first one in lexicographical order by the Subnet IDs.  See [Subnet Auto Discovery](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/deploy/subnet_discovery/ "Subnet Auto Discovery") for more information.
+
+If you are unable to tag the subnets, you can still specify their IDs in the ingress settings.
+
 ## Deploy AWS EKS
 #### Configure aws-cli to access you aws account.
 [Here](http:/https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html/ "Here") is an instruction how to configure aws-cli. You have to use method that is uses in your company.
@@ -42,17 +46,20 @@ To apply terraform, simply run the following commands on your command console.
 
 After running the command, a new s3 bucket and dynamoDB table will be created. The output will provide a configured template to be used in the terraform code for configuring the backend.
 
+The init-backend command should only be executed once. This Terraform project does not store state remotely, but creates the necessary components for other Terraform projects to store their state remotely.
+
 ```
 terraform {
-  backend "s3" {
-    bucket         = "00000000000-us-east-1-terraform-state"
-    key            = "STACKNAME/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "terraform-state-locktable"
-    encrypt        = true
-  }
-}
+          backend "s3" {
+            bucket         = "00000000000-us-east-1-terraform-state"
+            key            = "STACKNAME/terraform.tfstate"
+            region         = "us-east-1"
+            dynamodb_table = "terraform-state-locktable"
+            encrypt        = true
+          }
+        }
 ```
+
 
 Replace the 'STACKNAME' placeholder with a unique name for each stack within your bucket.
 
@@ -121,6 +128,15 @@ metadata:
     eks.amazonaws.com/role-arn: MY_ROLE_ARN
 ```
 
+If you use Helm, you can pass an additional annotation for the ServiceAccount as a parameter.
+
+```yaml
+rbac:
+      serviceAccount:
+        annotations:
+          eks.amazonaws.com/role-arn: ROLE_ARN
+```
+
 #### Configure kubectl
 Create or update a kubeconfig file for your cluster. Replace `region-code` with the AWS Region that your cluster is in and replace `my-cluster` with the name of your cluster.
 
@@ -141,12 +157,46 @@ An example output is as follows.
 If you receive any authorization or resource type errors, see[ Unauthorized or access denied (kubectl)](https://docs.aws.amazon.com/eks/latest/userguide/troubleshooting.html#unauthorized " Unauthorized or access denied (kubectl)") in the troubleshooting topic.
 
 #### Apply test deployment manifest
+In the deployment.yaml file under pod-example directory, there is an example manifest that creates deployment and ServiceAccount creation with an IAM role attached. The docker image amazon/aws-cli:latest is used to start the container.
 
+Change the role ARN in the deployment.yaml file to match the one obtained in the #create-irsa-role step, and then execute the command.
 
+    kubectl apply -f pod-example/deployment.yaml -n default
 
+In order to verify, execute the following command:
 
+    kubectl get pods -n default
 
+You'll see something like this
 
+    NAME                      READY   STATUS    RESTARTS   AGE
+    my-pod-858f56b875-xcbm8   1/1     Running   0          26s
 
+Then you can run some commands to make sure that the role is indeed attached to your pod and you can access the s3 bucket.
 
+    $ kubectl exec my-pod-858f56b875-xcbm8 -n default -- aws sts get-caller-identity
+    {
+        "UserId": "AROAXC5OGGREHKGRTOWXA:botocore-session-1696255516",
+        "Account": "487307228232",
+        "Arn": "arn:aws:sts::00000000000:assumed-role/test-pod-role/botocore-session-1696255516"
+    }
+    
+    ~/
+    $ kubectl exec my-pod-858f56b875-xcbm8 -n default -- aws s3 ls
+    2023-09-27 04:53:42 0000000000-us-east-1-terraform-state
+    2022-02-10 15:24:19 drongo-test
+    2023-10-01 15:04:30 drongo-test2
+    
+    ~/ 
+    $ kubectl exec my-pod-858f56b875-xcbm8 -n default -- aws s3 ls s3://drongo-test
+    2022-02-10 16:34:43      42706 test.txt
+
+You can then delete the role.
+Run the following commands.
+
+    kubectl delete -f pod-example/deployment.yaml -n default
+and
+
+    cd iam-to-pod-roles
+    terrafrom destroy -var-file="example.tfvars"
 

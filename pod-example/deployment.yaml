@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   name: my-pod-sa
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::00000000000:role/test-pod-role
+    eks.amazonaws.com/role-arn: ROLE_ARN
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -11,7 +11,13 @@ metadata:
   name: my-pod
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: my-pod
   template:
+    metadata:
+      labels:
+        app: my-pod
     spec:
       serviceAccountName: my-pod-sa
       containers:

@@ -1,4 +1,4 @@
-role_name = "test-pod"
+role_name = "my-pod"
 
 s3_bucket_name_list = [
   "drongo-test",
@@ -6,7 +6,7 @@ s3_bucket_name_list = [
 ]
 
 kubernetes_namespace           = "default"
-kubernetes_serviceaccount_name = "nginx-deployment-sa"
+kubernetes_serviceaccount_name = "my-pod-sa"
 
 tags = {
   Department  = "OPS"
