@@ -32,7 +32,7 @@ variable "eks_control_plane_subnet_ids" {
 }
 
 variable "eks_subnet_ids" {
-  description = "A list of subnet IDs where the nodes/node groups will be provisioned. If `control_plane_subnet_ids` is not provided, the EKS cluster control plane (ENIs) will be provisioned in these subnets"
+  description = "A list of private subnet IDs where the nodes/node groups will be provisioned. If `control_plane_subnet_ids` is not provided, the EKS cluster control plane (ENIs) will be provisioned in these subnets"
   type        = list(string)
 }
 
@@ -66,25 +66,25 @@ variable "eks_managed_node_groups" {
 }
 
 variable "enable_aws_load_balancer_controller" {
-  description = "Enable AWS Load Balancer Controller add-on"
+  description = "Enable AWS Load Balancer Controller"
   type        = bool
   default     = false
 }
 
 variable "alb_controller_target_revision" {
-  description = "ALB controller chart version."
+  description = "ALB controller chart version." # https://github.com/kubernetes-sigs/aws-load-balancer-controller/tree/main/helm/aws-load-balancer-controller
   type        = string
   default     = null
 }
 
 variable "cluster_autoscaler_target_revision" {
-  description = "ALB controller chart version."
+  description = "ALB controller chart version." #https://github.com/kubernetes/autoscaler/tree/master/charts
   type        = string
   default     = null
 }
 
 variable "enable_cluster_autoscaler" {
-  description = "Enable Cluster autoscaler add-on"
+  description = "Enable Cluster autoscaler"
   type        = bool
   default     = false
 }
