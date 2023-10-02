@@ -42,16 +42,16 @@ To apply terraform, simply run the following commands on your command console.
 
 After running the command, a new s3 bucket and dynamoDB table will be created. The output will provide a configured template to be used in the terraform code for configuring the backend.
 
-```json
+```
 terraform {
-          backend "s3" {
-            bucket         = "00000000000-us-east-1-terraform-state"
-            key            = "STACKNAME/terraform.tfstate"
-            region         = "us-east-1"
-            dynamodb_table = "terraform-state-locktable"
-            encrypt        = true
-          }
-        }
+  backend "s3" {
+    bucket         = "00000000000-us-east-1-terraform-state"
+    key            = "STACKNAME/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-state-locktable"
+    encrypt        = true
+  }
+}
 ```
 
 Replace the 'STACKNAME' placeholder with a unique name for each stack within your bucket.
