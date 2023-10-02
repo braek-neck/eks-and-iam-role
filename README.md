@@ -52,8 +52,8 @@ terraform {
             encrypt        = true
           }
         }
-
 ```
+
 Replace the 'STACKNAME' placeholder with a unique name for each stack within your bucket.
 
 #### Configure
