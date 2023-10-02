@@ -1,4 +1,4 @@
-eks_cluster_name    = "opsfleet-test-cluster"
+eks_cluster_name    = "my-test-cluster"
 eks_cluster_version = "1.27"
 
 eks_cluster_endpoint_public_access = true

@@ -35,3 +35,17 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
     type = "S"
   }
 }
+
+output "backend_backet" {
+  value = <<BACKEND
+  terraform {
+  backend "s3" {
+    bucket         = "${aws_s3_bucket.terraform_state.bucket}"
+    key            = "STACKNAME/terraform.tfstate"
+    region         = "${data.aws_region.this.name}"
+    dynamodb_table = "${aws_dynamodb_table.terraform_state_lock.name}"
+    encrypt        = true
+  }
+}
+BACKEND
+}
