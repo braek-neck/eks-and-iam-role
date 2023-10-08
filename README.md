@@ -3,7 +3,11 @@
 
 This project aims to simplify the process of setting up an EKS cluster. Additionally, instructions are provided below on how to create an IRSA role and use it to access an S3 bucket from a pod.
 
-Prerequisites for installation include an AWS EKS cluster. Optional components include a [AWS Load Balancer Controller](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html "AWS Load Balancer Controller") and [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html "Autoscaler").
+Prerequisites for installation include an AWS EKS cluster. Optional components include a
+* [AWS Load Balancer Controller](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html "AWS Load Balancer Controller")
+* [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html "Autoscaler")
+* [CloudWatch agent to collect cluster metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-metrics.html "CloudWatch agent to collect cluster metrics")
+* [Fluent Bit to send logs to CloudWatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Install-CloudWatch-Agent.html "Fluent Bit to send logs to CloudWatch Logs")
 
 [IRSA - IAM roles for service accounts.](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html "IRSA - IAM roles for service accounts.") Applications in a Pod's containers can use an AWS SDK or the AWS CLI to make API requests to AWS services using AWS Identity and Access Management (IAM) permissions. Applications must sign their AWS API requests with AWS credentials. IAM roles for service accounts provide the ability to manage credentials for your applications, similar to the way that Amazon EC2 instance profiles provide credentials to Amazon EC2 instances. Instead of creating and distributing your AWS credentials to the containers or using the Amazon EC2 instance's role, you associate an IAM role with a Kubernetes service account and configure your Pods to use the service account.
 
@@ -19,8 +23,8 @@ The following software must be installed in order to carry out the deployment pr
 Based on the AWS best practices, the following network resources should be in place (in the target AWS region) prior to the deployment process:
 
 * VPC
-    * DNS hostnames must be enabled
-    * DNS resolution must be enabled
+  * DNS hostnames must be enabled
+  * DNS resolution must be enabled
 * Internet gateway
 * 3 public subnets
 * 3 private subnets
@@ -79,9 +83,8 @@ Please ensure you carefully consider the node-group parameters.
     }
 
 Choose the instance type that is most suitable for your requirements, and remember that it can be changed later. Determine the minimum, maximum, and current values for the number of instances.
-If you set the `enable_cluster_autoscaler          = true` parameter, the cluster-autoscale feature will be activated. This means that, based on the load, the number of instances will automatically adjust within the range of the minimum and maximum values you've set.
 
-Enabling the `enable_aws_load_balancer_controller = true` parameter will set up the load balancer controller and allow you to publish your applications to the internet using ingress.
+After creating an Amazon EKS cluster, the IAM principal responsible for creating the cluster automatically receives system:masters privileges in the role-based access control (RBAC) configuration within the Amazon EKS control plane. However, this principal is not visible in any configuration, so it is important to keep track of which principal created the cluster. To add other IAM principals, you can incorporate a variable value into aws_auth_roles, aws_auth_users, or aws_auth_accounts.
 
 #### Deploy cluster
 
@@ -132,9 +135,9 @@ If you use Helm, you can pass an additional annotation for the ServiceAccount as
 
 ```yaml
 rbac:
-      serviceAccount:
-        annotations:
-          eks.amazonaws.com/role-arn: ROLE_ARN
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: ROLE_ARN
 ```
 
 #### Configure kubectl
