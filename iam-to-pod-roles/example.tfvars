@@ -1,3 +1,4 @@
+eks_cluster_name    = "my-test-cluster"
 role_name = "my-pod"
 
 s3_bucket_name_list = [

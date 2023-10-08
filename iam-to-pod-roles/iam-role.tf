@@ -1,3 +1,7 @@
+locals {
+  provider_arn = "arn:${data.aws_partition.this.partition}:iam::${data.aws_caller_identity.this.account_id}:oidc-provider/${replace(data.aws_eks_cluster.eks.identity[0].oidc[0].issuer, "https://", "")}"
+}
+
 module "iam_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 5.30.0"
@@ -9,14 +13,13 @@ module "iam_irsa_role" {
 
   oidc_providers = {
     main = {
-      provider_arn               = data.terraform_remote_state.eks.outputs.cluster_oidc_provider_arn
+      provider_arn               = local.provider_arn
       namespace_service_accounts = ["${var.kubernetes_namespace}:${var.kubernetes_serviceaccount_name}"]
     }
   }
 
   tags = local.tags
 }
-
 
 resource "aws_iam_policy" "policy_access_s3" {
   name        = "${var.role_name}-policy"
