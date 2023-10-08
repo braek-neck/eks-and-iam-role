@@ -4,8 +4,8 @@ resource "helm_release" "cluster_autoscaler" {
   description      = "A Helm chart to deploy cluster-autoscaler"
   repository       = "https://kubernetes.github.io/autoscaler"
   chart            = "cluster-autoscaler"
-  version          = var.cluster_autoscaler_target_revision
-  namespace        = "kube-system"
+  version          = var.cluster_autoscaler_chart_version
+  namespace        = kubernetes_namespace.cluster_autoscaler[0].metadata[0].name
   create_namespace = false
 
   set {
@@ -37,7 +37,7 @@ module "cluster_autoscaler_irsa_role" {
   oidc_providers = {
     main = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:aws-cluster-autoscaler"]
+      namespace_service_accounts = ["${kubernetes_namespace.cluster_autoscaler[0].metadata[0].name}:aws-cluster-autoscaler"]
     }
   }
 

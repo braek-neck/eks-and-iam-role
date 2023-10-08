@@ -71,20 +71,46 @@ variable "enable_aws_load_balancer_controller" {
   default     = false
 }
 
-variable "alb_controller_target_revision" {
+variable "alb_controller_chart_version" {
   description = "ALB controller chart version." # https://github.com/kubernetes-sigs/aws-load-balancer-controller/tree/main/helm/aws-load-balancer-controller
   type        = string
-  default     = null
 }
 
-variable "cluster_autoscaler_target_revision" {
+variable "cluster_autoscaler_chart_version" {
   description = "ALB controller chart version." #https://github.com/kubernetes/autoscaler/tree/master/charts
   type        = string
-  default     = null
 }
 
 variable "enable_cluster_autoscaler" {
-  description = "Enable Cluster autoscaler"
+  description = "Enable Cluster autoscaler add-on"
   type        = bool
   default     = false
+}
+
+variable "enable_aws_cloudwatch_metrics" {
+  description = "Enable AWS Cloudwatch EKS metrics"
+  type        = bool
+  default     = false
+}
+
+variable "aws_cloudwatch_metrics_chart_version" {
+  description = "AWS Cloudwatch EKS metrics chart version." #https://github.com/aws/eks-charts/blob/master/stable/aws-cloudwatch-metrics/README.md
+  type        = string
+}
+
+variable "enable_aws_for_fluent_bit" {
+  description = "Enable Fluent-bit"
+  type        = bool
+  default     = false
+}
+
+variable "aws_for_fluent_bit_chart_version" {
+  description = "Fluent-bit chart version."  #https://github.com/aws/eks-charts/blob/master/stable/aws-for-fluent-bit/README.md
+  type        = string
+  default     = null
+}
+
+variable "aws_for_fluent_bit_cw_log_group_retention" {
+  description = "CloudWatch log group retention"
+  type = number
 }

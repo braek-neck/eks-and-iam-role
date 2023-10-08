@@ -4,8 +4,8 @@ resource "helm_release" "alb_controller" {
   description      = "A Helm chart to deploy aws-load-balancer-controller for ingress resources"
   repository       = "https://aws.github.io/eks-charts"
   chart            = "aws-load-balancer-controller"
-  version          = var.alb_controller_target_revision
-  namespace        = "kube-system"
+  version          = var.alb_controller_chart_version
+  namespace        = kubernetes_namespace.ingress[0].metadata[0].name
   create_namespace = false
 
   set {
@@ -41,7 +41,7 @@ module "alb_controller_irsa_role" {
   oidc_providers = {
     main = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:aws-load-balancer-controller", ]
+      namespace_service_accounts = ["${kubernetes_namespace.ingress[0].metadata[0].name}:aws-load-balancer-controller", ]
     }
   }
 

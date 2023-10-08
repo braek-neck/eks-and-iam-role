@@ -18,10 +18,17 @@ eks_managed_node_groups = {
 }
 
 enable_aws_load_balancer_controller = true
-alb_controller_target_revision      = "1.6.0"
+alb_controller_chart_version      = "1.6.0"
 
 enable_cluster_autoscaler          = true
-cluster_autoscaler_target_revision = "9.29.1"
+cluster_autoscaler_chart_version = "9.29.1"
+
+enable_aws_cloudwatch_metrics = true
+aws_cloudwatch_metrics_chart_version = "0.0.9"
+
+enable_aws_for_fluent_bit = true
+aws_for_fluent_bit_chart_version = "0.1.30"
+aws_for_fluent_bit_cw_log_group_retention = 30
 
 tags = {
   Department  = "OPS"
